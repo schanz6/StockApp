@@ -10,4 +10,5 @@ program run). Second if you want to add more functions to it that would be great
 improve the graphis especialy the graph graphic that would be mush appreshated. 
 
 Notes
+
 This project was programed using NetBeans 
