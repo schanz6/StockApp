@@ -1,0 +1,23 @@
+
+AAPL  582.94   5
+BCS  15.66   4
+BCS  17.32   4
+BCS  17.32   4
+BCS  17.32   4
+BCS  17.32   4
+BCS  17.32   4
+BCS  17.32   4
+BCS  17.32   4
+BCS  17.32   4
+BCS  17.32   4
+BCS  17.32   4
+BCS  17.71   4
+BCS  17.84   4
+BCS  17.96   4
+GOOG  707.38   2
+GOOG  721.74   2
+HELP  N/A   0
+YHOO  19.64   6
+YONG  5.35   12
+ZQK  3.92   1
+ZX  3.17   11
