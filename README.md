@@ -11,4 +11,7 @@ improve the graphis especialy the graph graphic that would be mush appreshated.
 
 Notes
 
-This project was programed using NetBeans 
+This project was programed using NetBeans.
+Second I have not saved much data but I have been using the tag bcs for testing.
+Third as of now you can only use stock tags not the whole name (ie. google is goog).
+
