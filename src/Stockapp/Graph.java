@@ -29,7 +29,7 @@ public class Graph extends JPanel {
         yes = false;
         
        
-      this.setPreferredSize( new Dimension(width,height)); 
+      this.setPreferredSize(new Dimension(width,height)); 
    }
     
    public void getVal(ArrayList<String> v){
@@ -116,12 +116,12 @@ public class Graph extends JPanel {
        ArrayList<cord> out = findY();
       
        for(int a=0;a<out.size()-1;a++){
-            g.setColor(Color.blue);
+           g.setColor(Color.blue);
            g.fillOval(out.get(a).X-3,out.get(a).Y-3,5,5);
            g.drawLine(out.get(a).X,out.get(a).Y,out.get(a+1).X,out.get(a+1).Y);
-            g.setColor(Color.black);
+           g.setColor(Color.black);
            g.drawLine(out.get(a).X,327,out.get(a).X,323);
-          g.drawString(date.get(a).substring(8),out.get(a).X-9,340);
+           g.drawString(date.get(a).substring(8),out.get(a).X-9,340);
 
        }
        if(out.size()>0){
@@ -139,6 +139,7 @@ public class Graph extends JPanel {
       
        for(int a =0;a<=8;a++){
            String temp = String.format("%.4g",(h - (ratio*a)));
+           g.setColor(Color.black);
            g.drawLine(73,25+(scale*a),77,25+(scale*a));
            g.drawString(temp,0,25+(scale*a));
            

@@ -15,12 +15,6 @@ import javax.swing.*;
  * @author Jeremy Schanz
  */
 
-    
-
-
-
-
-   
 
 public class window extends JFrame
 {
@@ -169,7 +163,7 @@ public class window extends JFrame
         String[] out = test.getCount();
         out[out.length-1]= ""+score;
         f.add(out, tag, score);
-        f.addData(out, tag, score);
+        //f.addData(out, tag, score);
         
         return out;
     }
