@@ -11,154 +11,272 @@ import java.util.* ;
 
 
 /**
- *
+ * This class creates the graph for the stock App display  
  * @author Jeremy Scahnz
  */
-public class Graph extends JPanel {
+public class Graph extends JPanel 
+{
    
         private int height, width;
         private double high, low;
-	private ArrayList<Integer> val;
+	private ArrayList<Integer> value;
 	private ArrayList<String> date;
-        private boolean yes;
+        private boolean isRepaint;
 	
-    
-    public Graph(){
-        width = 500;
+     /**
+   * This constructor sets up the graph class 
+   */
+   public Graph()
+   {
+       // sets height and width
+        width  = 500;
         height = 545;
-        yes = false;
+        this.setPreferredSize(new Dimension(width,height)); 
         
-       
-      this.setPreferredSize(new Dimension(width,height)); 
+        
+        isRepaint = false;
+        value = null;
+        date  = null;
+        
+        
    }
     
-   public void getVal(ArrayList<String> v){
-       val = new ArrayList<Integer>();
-      if(v.size()>0){
-       high = (int)(parseDoubleComma(v.get(0))*100);
-       low = high;
+     /**
+   * This Function sets the data and the dates for the graph class and finds 
+   * the max and min of the data
+   * @param paramData array of dates
+   * @param pramValue array of data
+   */
+   public void setData( ArrayList<String> paramDate ,ArrayList<String> paramValue)
+   {
+      value = new ArrayList<Integer>();
+      date = paramDate;
       
+      if(paramValue.size()>0)
+      {
+        high = (int)(statToDouble(paramValue.get(0))*100);
+        low = high;
       
-       for(int a = 0;a<v.size();a++ ){
+      // finds min and max values
+        for(int i = 1;i<paramValue.size();i++ )
+        {
            
-           int out = (int)(parseDoubleComma(v.get(a))*100);
+           int out = (int)(statToDouble(paramValue.get(i))*100);
           
            if(out<low)
+           {
                low =out;
-           if(out>high)
-               high =out;
-           
-           val.add(out);
-           
-       }
-      }
-      
-   }
-   public void getDate(ArrayList<String> d){
-       date =d;
-   }
-      
-   public ArrayList<cord> findY(){
-       ArrayList<cord> out = new ArrayList<cord>();
-      if(val.size()>0){
-       double ratio = 400/val.size();
-       double temp;
-       for(int a =0;a<val.size();a++){
-           if(high !=low){
-              temp = (val.get(a)-low)/(high-low); 
-              temp = 325-(300*temp);
-           }else{
-                temp = 175;
            }
+           if(out>high)
+           {
+               high =out;
+           }
+           value.add(out);
            
-           
-           double tx = (ratio*(a))+75;
-        
-           out.add(new cord((int)temp,(int)tx));
-       }
+        }
       }
-       return out;
+      
+   }
+      
+     /**
+   * This Function find where each data points actual coordinates fall on the graph 
+   * @return array holding  the coordinates 
+   */
+   private ArrayList<Coordinates> findCoordinates()
+   {
+      ArrayList<Coordinates > out = new ArrayList<Coordinates >();
+      // checks if array is not empty 
+      if(value.size()>0)
+      {
+            //sets ratio based on number of data points 
+            double ratio = 400/value.size();
+            double tempY;
+           
+            //finds where each point lise based on high and low values 
+            for(int i =0;i<value.size();i++)
+            {
+                // if data is not a horizontal line 
+                if(high !=low)
+                {
+                    tempY = (value.get(i)-low)/(high-low); 
+                    tempY = 325-(300*tempY);
+                }
+                else
+                {
+                    tempY = 175;
+                }
+           
+           
+                double tempX = (ratio*(i))+75;
+        
+                out.add(new Coordinates ((int)tempX, (int)tempY));
+            }
+      }
+      
+     return out;
        
    }
-   
-   public  double parseDoubleComma(String out){
-  
-	String left,right;
-	String s = out;
-	for(int i =0;i<s.length();i++){
-		if(s.charAt(i)== ','){
-		     left = s.substring(0,i);
-		     right = s.substring(i+1,s.length());
-		     s = left+right;
-		    
-		}
-	}
-        
-        if(s.charAt(s.length()-1)== 'B'||s.charAt(s.length()-1)== 'M' ){
-            s = s.substring(0,s.length()-1);
-        }
-	return Double.parseDouble(s);
-	
-    }
-   
-   public void go(){
-       yes= true;
+
+    
+   /**
+   * This Function is used to update the graph and allows caller to control the update  
+   */
+   public void update()
+   {
+       isRepaint = true;
        repaint(); 
    }
     
+ 
+    /**
+   * This Function draws the actual graph on the jpanel
+   * @param g graphic component
+   */
    public void paintComponent(Graphics g)
-   {   g.clearRect(0,0,height,width);
+   {   
+       g.clearRect(0,0,height,width);
        g.setColor(Color.black);
 
        g.drawLine(75, 25, 75, 325);
        g.drawLine(75 , 325, 475,325);
-       if(yes){
-       ArrayList<cord> out = findY();
-      
-       for(int a=0;a<out.size()-1;a++){
-           g.setColor(Color.blue);
-           g.fillOval(out.get(a).X-3,out.get(a).Y-3,5,5);
-           g.drawLine(out.get(a).X,out.get(a).Y,out.get(a+1).X,out.get(a+1).Y);
-           g.setColor(Color.black);
-           g.drawLine(out.get(a).X,327,out.get(a).X,323);
-           g.drawString(date.get(a).substring(8),out.get(a).X-9,340);
+       
+       if(isRepaint == true)
+       {
+            ArrayList<Coordinates> out = findCoordinates();
+            // draws the points and lines on the graph 
+            for(int i=0;i<out.size()-1;i++)
+            {
+                g.setColor(Color.blue);
+                g.fillOval(out.get(i).X-3,out.get(i).Y-3,5,5);
+                g.drawLine(out.get(i).X,out.get(i).Y,out.get(i+1).X,out.get(i+1).Y);
+                g.setColor(Color.black);
+                g.drawLine(out.get(i).X,327,out.get(i).X,323);
+                g.drawString(date.get(i).substring(8),out.get(i).X-9,340);
 
-       }
-       if(out.size()>0){
-            g.setColor(Color.blue);
-            g.fillOval(out.get(out.size()-1).X-3,out.get(out.size()-1).Y-3,5,5);
-            g.setColor(Color.black);
-            g.drawLine(out.get(out.size()-1).X,327,out.get(out.size()-1).X,323);
-            g.drawString(date.get(out.size()-1).substring(8),out.get(out.size()-1).X-9,340);
-       }
+            }
+            // draws the last point and line
+            if(out.size()>0)
+            {
+                g.setColor(Color.blue);
+                g.fillOval(out.get(out.size()-1).X-3,out.get(out.size()-1).Y-3,5,5);
+                g.setColor(Color.black);
+                g.drawLine(out.get(out.size()-1).X,327,out.get(out.size()-1).X,323);
+                g.drawString(date.get(out.size()-1).substring(8),out.get(out.size()-1).X-9,340);
+            }
        
-       double l = low/100;
-       double h  = high/100;
-       double ratio = (h -l)/8;
-       int scale = 300/8;
+            //double l = low/100;
+            double highPercent  = high/100;
+            double ratio = (highPercent -(low/100))/8;
+            int scale = 300/8;
       
-       for(int a =0;a<=8;a++){
-           String temp = String.format("%.4g",(h - (ratio*a)));
-           g.setColor(Color.black);
-           g.drawLine(73,25+(scale*a),77,25+(scale*a));
-           g.drawString(temp,0,25+(scale*a));
+            //writes the y axis values 
+            for(int i =0;i <= 8; i++)
+            {
+               String temp = String.format("%.4g",(highPercent - (ratio*i)));
+               g.setColor(Color.black);
+               g.drawLine(73,25+(scale*i),77,25+(scale*i));
+               g.drawString(temp,0,25+(scale*i));
            
-       }
+            }
        
        }
+       
+       
        
        
        
    }
+      
+       /**
+   * This Function finds the correct multiplier and then converts data to double 
+   * @param value data being converted 
+   * @return the data converted to double 
+   */
+     private double statToDouble(String value )
+     {
+        // returns zero if there is no value found
+        if(value.equals("N/A"))
+        {
+            return 0;
+        }
+        
+        char moneyChar = Character.toLowerCase( value.charAt(value.length()-1));
+        double multiplier = 1;
+        
+       // checks if there is a number indicator (i.e. m = million)  multiplies the number accordingly  
+        if(moneyChar == '%' || moneyChar == 'm' || moneyChar == 'b' || moneyChar == 'k' || moneyChar == 't' )
+        {
+            value = value.substring(0,value.length()-2);
+            
+            if(moneyChar == '%')
+            {
+                multiplier = 1.0/100.0; 
+            }
+            if(moneyChar == 'm')
+            {
+                multiplier= 1000000;
+            }
+            if(moneyChar == 'b')
+            {
+                multiplier = 1000000000;
+            }
+            if(moneyChar == 'k')
+            {
+                multiplier = 1000;
+            }
+             if(moneyChar == 't')
+            {
+                multiplier = 1000000000000.0;
+            }
+        }
+        
+        return parseDoubleComma(value)*multiplier;
+          
+     }
    
-   public class cord{
+  /**
+   * This Function converts a string the contains commas to double 
+   * @param value value being converted 
+   * @return the value converted to double 
+   */
+    private double parseDoubleComma(String value)
+    {
+        if(value.equals("N/A"))
+        {
+            return 0;
+        }
+  
+	String left,right;
+	String out = value;
+	for(int i =0;i<out.length();i++)
+        {
+		if(out.charAt(i)== ',')
+                {
+		     left = out.substring(0,i);
+		     right = out.substring(i+1,out.length());
+		     out = left+right;
+		    
+		}
+	}
+	
+	return Double.parseDouble(out);
+        
+     }
+    
+    /**
+ * This class holds an x and y coordinates 
+ * @author Jeremy Scahnz
+ */
+   public class Coordinates 
+   {
        int X;
        int Y;
       
        
-       public cord(int y, int x){
-           X =x;
-           Y=y;
+       public Coordinates ( int x, int y)
+       {
+           X = x;
+           Y = y;
            
        
        }
