@@ -15,11 +15,11 @@ import java.util.*;
 public class StatFinder 
 {
   
-    private static ArrayList<String> tagList;
-    private static ArrayList<StockArrayList<StockData>> info;
-    private static int arrayLength = 15;
-    private static String[] date;
-    private static final String[] wordList ={"Price","Price/Book (mrq)","PEG Ratio (5 yr expected)","Trailing P/E (ttm, intraday)",
+    private ArrayList<String> tagList;
+    private ArrayList<StockArrayList<StockData>> info;
+    private int arrayLength = 15;
+    private String[] date;
+    private final String[] wordList ={"Price","Price/Book (mrq)","PEG Ratio (5 yr expected)","Trailing P/E (ttm, intraday)",
         "Market Cap (intraday)","Forward P/E ","Return on Equity (ttm):","Enterprise Value ","52-Week High ","52-Week Low ","% Held by Institutions",
         "Avg Vol (3 month)","Avg Vol (10 day)","Price/Sales (ttm)","Current Ratio (mrq)","Enterprise Value/Revenue (ttm)","Enterprise Value/EBITDA (ttm)","Profit Margin (ttm)","Operating Margin (ttm)","Return on Assets (ttm)",
         "Revenue Per Share (ttm)","Qtrly Revenue Growth (yoy)","Gross Profit (ttm)","EBITDA (ttm)","Net Income Avl to Common (ttm)","Diluted EPS (ttm)","Qtrly Earnings Growth (yoy)","Total Cash Per Share (mrq)",
@@ -27,18 +27,16 @@ public class StatFinder
         "Held by Insiders","Shares Short ","Short Ratio ","of Float ","Shares Short (prior month)","Score"};
     
     
-  /**
-   * This Function is the main function for stat finder
-   * it is responsible reading the data from files and 
-   * putting it in to a complex array
-   * @param arg not used.
+   /**
+   * This constructor loads data for the StatFinder class
+   * @param tagList list of stock tags to be included in dataset.
    */
-    public static void main(String [] arg)
+    public StatFinder(ArrayList<String> tagList)
     {
-       
        // Gets list of stock tags
        // file = new StockFileReader();
-        tagList = StockFileReader.getStockName("combinedList.txt");
+        this.tagList = tagList;
+       
         info = new ArrayList<StockArrayList<StockData>>();
         
         // loops throught the tags reading data from files 
@@ -51,7 +49,7 @@ public class StatFinder
                info.add(hold);  
             }
         }
-        System.out.println(info.size());
+       
         
         // finds the dates of the data
         ArrayList<StockData> first =  info.get(0);
@@ -68,7 +66,9 @@ public class StatFinder
             
             if(hold.size() < date.length)
             {
-                for(int j =0; j< hold.size();j++)
+                int holdSize = hold.size();
+                
+                for(int j =0; j< holdSize ;j++)
                 {
                   
                     if(!date[j].equals(hold.get(j).date))
@@ -82,53 +82,25 @@ public class StatFinder
             }
         }
         
+         System.out.println(info.size()+" Stock tags data loaded ");
         
-       runTest();
-        
-        
+    }
+  /**
+   * This Function returns the whole dataset
+   * @return returns whole dataset
+   */
+    public ArrayList<StockArrayList<StockData>> getStocks()
+    {
+        return info; 
     }
     
+
   /**
-   * This Function is used to set up and run tests 
-   */
-    public static void runTest()
-    {
-        StockArrayList<StockData> stock = findStock("manu");
-        
-        printStock(stock.get(0));
-        
-        stock = findStock("goog");
-        
-        printStock(findDate(stock,"2013/10/21"));
-        
-        
-       //totalPrice();
-        regresion(stock);
-        
-        //System.out.println(info.get(info.size()-1).getName());
-       /* 
-       // priceChange();
-        int last = info.get(info.size()-1).size();
-        last = 25;
-        //statRanking(0,16);
-        for(int k = 1;k<16;k++){
-            for(int i = 0;i<10;i++){
-                for(int j = 1;j <10;j++){
-                    PECorrelation(i,i+j,k,25);
-            }
-           }
-        }
-            
-           */
-        //scoreSort(info);
-        
-    }
- /**
    * This Function finds a particular stocks data 
    * @param tag tag of stock data you are looking for.
    * @return StockArrayList containing stock data.
    */
-    public static StockArrayList<StockData> findStock(String tag)
+    public StockArrayList<StockData> findStock(String tag)
     {
         tag = tag.toUpperCase();
         for(int i = 0; i < info.size();i++ )
@@ -144,10 +116,10 @@ public class StatFinder
       /**
    * This Function finds data from a particular date
    * @param stock data from a stock.
-   * @param date the date you are looking for.
+   * @param date the date you are looking for in yyyy/MM/dd format.
    * @return returns day worth of data.
    */
-    public static StockData findDate(StockArrayList<StockData> stock, String date)
+    public StockData findDate(StockArrayList<StockData> stock, String date)
     {
         for(int i = 0; i< stock.size();i++)
         {
@@ -164,7 +136,7 @@ public class StatFinder
    * This Function prints a days worth of data 
    * @param stock days worth of stock data.
    */
-    public static void printStock(StockData stock)
+    public void printStock(StockData stock)
     {
         System.out.println(stock.name);
         
@@ -178,9 +150,11 @@ public class StatFinder
       /**
    * This Function finds the regression of all the data types of an individual stocks over price
    * @param stock data from a particular stock.
+   * @return returns array list of regressions
    */
-    public static void regresion(ArrayList<StockData> stock)
+    public ArrayList<RegressionHolder> regression(ArrayList<StockData> stock)
     {
+        ArrayList<RegressionHolder> retList = new ArrayList<RegressionHolder>();
        //loops throught the differnt kinds of data points 
        for(int index =0;index< stock.get(0).length();index++)
        {
@@ -209,90 +183,57 @@ public class StatFinder
         
             double[] reg = Statistics.regression(x,y);
         
-            System.out.println("Regression of price on "+wordList[index]+" b0 = "+reg[0]+" b1 = "+ reg[1]+" correlation = "+ Statistics.correlation(x, y));
-    
+            retList.add(new RegressionHolder(wordList[index],reg[0],reg[1],Statistics.correlation(x, y)));
+           
        }
+       
+       return retList;
     }
     
+
      /**
-   * This Function finds the total price of all stock each day
+   * This Function finds the total price of all stock on a given date
+   * @param info dataset being searched over.
+   * @param date date to find total price.
+   * @return returns array list of regressions
    */
-    public static void totalPrice()
+    public double totalPrice(ArrayList<StockArrayList<StockData>> info, String date)
     {
-        double total = 0;
-        ArrayList<StockData> first =  info.get(0);
-        double outArray[] = new double[first.size()];
+        
+        double retPrice = 0;
         
         // loops throught  all stocks
         for(int i = 0; i< info.size();i++)
         {
-            // loops throught each day
-            for(int j = 0;j< first.size();j++)
+            
+            try
             {
-                try
-                {
-                   outArray[j]  = outArray[j] + info.get(i).get(j).price;
-                } 
-                catch(Exception e)
-                {
-                    System.out.println(info.get(i).getName());
-                }
+               retPrice  = retPrice + findDate(info.get(i),date).price;
+            } 
+            catch(Exception e)
+            {
+                System.out.println(info.get(i).getName());
             }
-        }
-        // prints out results
-        for(int j = 0;j< outArray.length;j++)
-        {
-            System.out.println(first.get(j).date+" : "+ outArray[j] );
             
         }
+        
+        return retPrice; 
+        
     }
     
+
     
-     /**
-   * This Function calculates the percent prise difference in all stocks between a set time period
-   */
-    public static void priceChange()
-    {
-        ArrayList<StatHolder> change = new ArrayList<StatHolder>();
-        
-        for(int i = 0;i < info.size(); i++)
-        {
-            StockArrayList<StockData> stockArray = info.get(i);
-          try
-          {
-             
-            StockData first = stockArray.get(0);
-            StockData last = stockArray.get(stockArray.size()-1);
-            
-            double priceDif = (last.price-first.price)/first.price;
-            
-         //   change.add(new StatHolder(stockArray.getName(),priceDif,last.price));
-          }
-          catch(Exception e)
-          {
-              System.out.println(stockArray.getName());
-          }
-        }
-        
-        //change = sort(change);
-        
-        for(int j = 0;j < 50; j++)
-        {
-            
-            StatHolder outData = change.get(j);
-          //  System.out.println(outData.getName()+" : "+outData.getPrice()+" : "+outData.getStat());
-        }
-    
-    }
      /**
    * This Function shows the corelation between selected data point and change in price of the stock 
    * over a set time period
-   * @param statFirstDay first  day of time period.
-   * @param statSecondDay last  day of time period.
+   * @param info dataset being searched over.
+   * @param statFirstDay first day of time period.
+   * @param statLastDay last day of time period.
    * @param statNumber number that represents the data point you want to compare.
    * @param priceChange minimum size of data needed to test 
+   * @return returns correlation between the two data sets 
    */
-    public static void PECorrelation(int statFirstDay ,int statSecondDay,int statNumber,int priceChange )
+    public double PECorrelation(ArrayList<StockArrayList<StockData>> info,int statFirstDay ,int statLastDay,int statNumber,int priceChange )
     {
         int minSize = info.get(0).size() - 3;
         
@@ -303,11 +244,11 @@ public class StatFinder
                StockArrayList<StockData> stockArray = info.get(i);
                
                //finds the stock data
-               if(stockArray.size()> minSize && stockArray.size()> statSecondDay && stockArray.size()> priceChange  )
+               if(stockArray.size()> minSize && stockArray.size()> statLastDay && stockArray.size()> priceChange  )
                {
                    StockData firstStat = stockArray.get(statFirstDay);
                    StockData secondStat = stockArray.get(stockArray.size()-1);
-                   StockData thirdStat = stockArray.get(statSecondDay);
+                   StockData thirdStat = stockArray.get(statLastDay);
                    // adds data to array list if data is not 0 (NULL)
                    if(firstStat.get(statNumber) !=0)
                    {
@@ -335,20 +276,25 @@ public class StatFinder
         // prints correlations creater then .1
         if(cor > .1)
         {
-            System.out.println(statFirstDay +" "+ statSecondDay+" "+statNumber+" "+priceChange+" "+ cor);
+            System.out.println(statFirstDay +" "+ statLastDay+" "+statNumber+" "+priceChange+" "+ cor);
         }
+        
+        return cor;
     
     }
+    
   /**
    * This Function calculates the change in  all the data point for all the stock
    * between a set period of time and then ranks the change compared to each other
+   * @param info dataset being searched over.
    * @param firstDay first  day of time period.
-   * @param secondDay last  day of time period.
+   * @param lastDay last  day of time period.
+   * @return returns dataset with rankings 
    */
-    public static void statRanking(int firstDay, int secondDay)
+    public ArrayList<StockArrayList<StockData>> statRanking(ArrayList<StockArrayList<StockData>> info, String firstDay, String lastDay)
     {
-      
-      for(int statIndex = 0; statIndex< arrayLength;statIndex++ ) 
+        
+      for(int statIndex = 0; statIndex < arrayLength;statIndex++ ) 
       { 
           int count = 0;
         
@@ -359,9 +305,9 @@ public class StatFinder
           
               try
               {
-                  StockData first = stockArray.get(firstDay);
+                  StockData first = findDate(stockArray,firstDay);
             
-                  StockData last = stockArray.get(secondDay);
+                  StockData last = findDate(stockArray,lastDay);
             
                   if(first.get(statIndex) != 0 )
                   {
@@ -385,36 +331,21 @@ public class StatFinder
         }
           
           sort(info,statIndex);
-          System.out.println(statIndex+" : "+count);
+          //System.out.println(statIndex+" : "+count);
           
       }
       
       sort(info,0);
-      
-      
-       for(int l = 0;l < 50; l++)
-       {
-          StockArrayList<StockData> stockPrint = info.get(l);
-       
-          System.out.print(stockPrint.getName()+"  "+stockPrint.get(stockPrint.size()-1).price);
-          
-          for(int m = 0;m < arrayLength; m++)
-          {
-              System.out.print("  "+stockPrint.getRanking(m));
-          }
-          
-          System.out.println("");
-      
-      }
+     
+      return info;
         
     }
             
     /**
    * This Function sorts the actual rankings that are created 
    * @param original array your sorting 
-   * @return no return but changes array order of the input array .
    */
-   public static void scoreSort(ArrayList<StockArrayList<StockData>> original)
+   public void scoreSort(ArrayList<StockArrayList<StockData>> original)
    {
        
        for(int i = 0;i<original.size();i++)
@@ -448,9 +379,9 @@ public class StatFinder
    * This Function sorts the rankings for statRancking function 
    * @param original array your sorting 
    * @param statIndex index of data point being sorted 
-   * @return no return but changes array order of the input array .
+   * @return returns sorted list
    */
-    public static ArrayList<StockArrayList<StockData>> sort(ArrayList<StockArrayList<StockData>> original, int statIndex)
+    private ArrayList<StockArrayList<StockData>> sort(ArrayList<StockArrayList<StockData>> original, int statIndex)
     {
       	      for(int i = 0;i < original.size();i++)
               {
@@ -477,9 +408,6 @@ public class StatFinder
               
               return original;
        }
-    
-    
-    
     
     
 }

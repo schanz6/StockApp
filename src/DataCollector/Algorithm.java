@@ -5,7 +5,7 @@
 package DataCollector;
 
 /**
- * This is an outdated algorithm that is simply used as a place holder (ignore) 
+ * This is an outdated algorithm that is simply used as a place holder 
  * @author jeremy schanz 
  */
 
